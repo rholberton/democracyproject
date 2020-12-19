@@ -146,8 +146,6 @@ var bodyLabel;
 var bColor = "#012244";
 var pColor = "#3c1b36";
 
-
-var vColor = ["#c44900", "#ffffc7", "#ffc100", "#777da7"]
 let tranVal = 255;
 let fadeOpac = 255;
 var partyNum = 0;
@@ -159,22 +157,42 @@ let mainText;
 let headerText;
 let subHeaderText;
 
+//checks for voting bodies and sees if they will actually vote or not
 let stopVoteBool = false;
 let stopVoteCount = 0;
 let stopVoteArr = [];
 let vpVote = false;
+
+//loaded assets
 let helvFont;
 let loadingImage;
 
+//user inputs are enabled
+let userEdits = false;
+
+
+//user input variables, should convert into arrays
+var userNumHouseSlider, userNumSenateSlider, userNumPresSlider, userPerDemHouseSlider, userPerRepHouse, userPerIndHouseSlider, userPerDemSenateSlider, userPerRepSenateSlider, userPerIndSenateSlider, userPerDemPresSlider, userPerRepPresSlider, userPerIndPresSlider, userRepYaythreshSlider, userDemYaythreshSlider, userIndYaythreshSlider, userSuperThreshSlider, userNumBodiesSlider, userStressSensorvalSlider, userStressPlanetSlider;
+
+var userNumHouse, userNumPres, userNumSenate, userPerDemHouse, userPerRepHouse, userPerIndHouse, userPerDemSenate, userPerRepSenate, userPerIndSenate, userPerDemPres, userPerRepPres, userPerIndPres, userRepYaythresh, userDemYaythresh, userIndYaythresh, userSuperThresh, userNumBodies, userStressSensorval, userStressPlanet;
+
+var userNumHouseText, userNumSenateText, userNumPresText, userPerDemHouseText, userPerRepHouseText, userPerIndHouseText, userPerDemSenateText, userPerRepSenateText, userPerIndSenateText, userPerDemPresText, userPerRepPresText, userPerIndPresText, userRepYaythreshText, userDemYaythreshText, userIndYaythreshText, userSuperThreshText, userNumBodiesText, userStressSensorvalText, userStressPlanetText = "0";
+
+var houseCurrentValue, senateCurrentValue, presCurrentValue, demHouseCurrentValue, repHouseCurrentValue, indHouseCurrentValue, demSenateCurrentValue, repSenateCurrentValue, indSenateCurrentValue, demPresCurrentValue, repPresCurrentValue, indPresCurrentValue, repYaythreshCurrentValue, demYaythreshCurrentValue, indYaythreshCurrentValue, superThreshCurrentValue, numBodiesCurrentValue, stressSensorvalCurrentValue, stressPlanetCurrentValue = 0;
+
+var userPaddingX = 20;
+var userInputY = 20;
+var userInputX = 20;
+
 function preload() {
     helvFont = loadFont('/democracy-engine-congressional-simulator/assets/font/HelveticaNeue-Regular.otf');
-    loadingImage = loadImage('/democracy-engine-congressional-simulator/assets/asraProgress.png');
+
 }
 
 function setup() {
 
     textFont(helvFont);
-    let canvas = createCanvas(windowWidth*.8, windowHeight*.8);
+    let canvas = createCanvas(windowWidth * .8, windowHeight * .8);
     canvas.parent('vote');
     dWidth = width;
     dHeight = height;
@@ -194,15 +212,42 @@ function draw() {
     rot += 0.5;
 
     currentCongLogic();
+
+    if (userEdits == true) {
+
+        background(bColor);
+        userNumHouseText = userNumHouseSlider.value();
+        userNumSenateText = userNumSenateSlider.value();
+        userNumPresText = userNumPresSlider.value();
+
+        houseCurrentValue = checkValue(userNumHouseText, userNumHouse, houseCurrentValue);
+        senateCurrentValue = checkValue(userNumSenateText, userNumSenate, senateCurrentValue);
+        presCurrentValue = checkValue(userNumPresText, userNumPres, presCurrentValue);
+
+        // demHouseCurrentValue = checkValue(userPerDemHouseText, userPerDemHouse, demHouseCurrentValue);
+        // repHouseCurrentValue = checkValue(userPerRepHouseText, userPerRepHouse, repHouseCurrentValue);
+        // indHouseCurrentValue = checkValue(userPerIndHouseText, userPerIndHouse, indHouseCurrentValue);
+        // demSenateCurrentValue = checkValue(userPerDemSenateText, userPerDemSenate, demSenateCurrentValue);
+        // repSenateCurrentValue = checkValue(userPerRepSenateText, userPerRepSenate, repSenateCurrentValue);
+        // indSenateCurrentValue = checkValue(userPerIndSenateText, userPerIndSenate, indSenateCurrentValue);
+        // demPresCurrentValue = checkValue(userPerDemPresText, userPerDemPres, demPresCurrentValue);
+        // repPresCurrentValue = checkValue(userPerRepPresText, userPerRepPres, repPresCurrentValue);
+        // indPresCurrentValue = checkValue(userPerIndPresText, userPerIndPres, indPresCurrentValue);
+        // repYaythreshCurrentValue = checkValue(userRepYaythreshText, userRepYaythresh, repYaythreshCurrentValue);
+        // demYaythreshCurrentValue = checkValue(userDemYaythreshText, userDemYaythresh, demYaythreshCurrentValue);
+        // indYaythreshCurrentValue = checkValue(userIndYaythreshText, userIndYaythresh, indYaythreshCurrentValue);
+        // superThreshCurrentValue = checkValue(userSuperThreshText, userSuperThresh, superThreshCurrentValue);
+        // numBodiesCurrentValue = checkValue(userNumBodiesText, userNumBodies, numBodiesCurrentValue);
+        // stressSensorvalCurrentValue = checkValue(userStressSensorvalText, userStressSensorval, stressSensorvalCurrentValue);
+        // stressPlanetCurrentValue = checkValue(userStressPlanetText, userStressPlanet, stressPlanetCurrentValue);
+
+    }
 }
 
 //Logic below is setup for current congressional configuration
+//May want to wrap this in a case state or the like so users can define different logic
+//if the user has input variables use those instead of the Global declaration
 function currentCongLogic() {
-    //May want to wrap this in a case state or the like so users can define different logic
-
-    //if the user has imput variables use those instead of the Global declaration
-
-
 
     // Logic for House
     if (bodyCount == 0) {
@@ -212,7 +257,7 @@ function currentCongLogic() {
             test = 0;
             print('bodyCount = ')
             print(bodyCount);
-            background(color(pColor));
+            background(color(bColor));
 
             //maps stress index onto percentage effecting yay/nay vote.
             stressMap = map(stress, stressLow, stressHigh, 0, 2);
@@ -424,7 +469,6 @@ function rotLoadImage() {
 
 //Shows result of the vote
 function bodyVote() {
-    //possibly add something with more user feedback, just fades out for now, maybe status bar
     fill(map(count1, 0, numCon, 0, 255));
     // reset variables if first pass thorugh function
     if (count1 < 1) {
@@ -439,7 +483,6 @@ function bodyVote() {
         // }
 
         drawRect();
-
         // Once all of votes have been cast display the total for each body
         if (count1 == numCon - 1) {
             resultLogic();
@@ -565,9 +608,9 @@ function drawRect() {
             strokeWeight(3);
         }
         print('drawing VP square at' + x + " " + y + skip);
-        rect(x, y + skip, diam, diam);
+        rect(x, y + skip, diam, diam, diam / 8);
     } else {
-        rect(x, y, diam, diam);
+        rect(x, y, diam, diam, diam / 8);
     }
 
     // rect(x, y, diam, diam);
@@ -577,7 +620,7 @@ function drawRect() {
         noStroke();
         fill(255, currentTransVal);
     }
-    rect(x, y, diam, diam);
+    rect(x, y, diam, diam, diam / 8);
     //creates the x on squares that are "no votes"
     if (noVoteBool == true && stopVoteBool == false) {
         fill(bColor);
@@ -688,20 +731,19 @@ function finalDisplay() {
 
     let currentBodyLabel;
 
-    let columnAmount = 3;
+    let columnAmount = numBodies - 1;
     let rowAmount = 4;
 
     let padY = 20;
-    let padX = 30;
+    let padX = 10;
     let dispW = (dWidth / columnAmount);
     let dispH = (dHeight / rowAmount);
 
     let dispX = 0 + padX;
     let dispY = 0 + padY;
-    let col1 = dispW * 0;
-    let col2 = dispW * 1;
-    let col3 = dispW * 2;
+
     var resBColor = color(0, 0, 0);
+    let decisionText = "";
     //column 1 to be yay/nay votes
     //column 2 to be body votes
     textFont(helvFont);
@@ -709,7 +751,7 @@ function finalDisplay() {
     if (bodyCount == numBodies) {
         setTimeout(function() {
 
-            textSize(26);
+
             textAlign(LEFT, TOP);
             fill(color("#faf4d3"));
             noStroke();
@@ -724,7 +766,7 @@ function finalDisplay() {
             for (let i = 0; i < numBodies; i++) {
                 fill(255);
                 if (i == 0) {
-                    currentBodyLabel = 'HOUSE OF REPRESENTATIVES';
+                    currentBodyLabel = 'HOUSE';
                 } else if (i == 1) {
                     currentBodyLabel = 'SENATE';
                 } else if (i == 2) {
@@ -740,113 +782,123 @@ function finalDisplay() {
                 if (i < votingBodyCounts.length) {
 
                     print("i = " + i + " and current body label = " + currentBodyLabel);
+
                     if (currentBodyLabel == 'PRESIDENT') {
-                        textSize(26);
-                        text(currentBodyLabel, (i - 1) * dispW, padY, dispW, dispH);
-                        textSize(20);
+                        textSize(23);
+                        text(currentBodyLabel, (i - 1) * dispW + padX, padY, dispW, dispH);
+                        textAlign(LEFT);
+
                         if (stopVoteArr[i] == false) {
-                            text("\n\nTALLY: " + "\nYES VOTES= " + votingBodyCounts[i][0] + "\nNO VOTES= " + votingBodyCounts[i][1] + "\n ", (i - 1) * dispW, padY, dispW, dispH);
-                            if (bodyPass[i] == false) {
-                                text('\nBILL FAILS ' + currentBodyLabel, (i - 1) * dispW, dHeight / 4, dispW, dispH);
-                            } else if (bodyPass[i] == true && superThreshIndex[i] == false) {
-                                text('\nBILL PASSES ' + currentBodyLabel, (i - 1) * dispW, dHeight / 4, dispW, dispH);
+                            textSize(20);
+                            text("\n\nVOTES \n", (i - 1) * dispW + padX, padY, dispW, dispH);
+                            textSize(16);
+                            text("\n\n\n\nYES: " + votingBodyCounts[i][0] + "\nNO: " + votingBodyCounts[i][1] + "\n ", (i - 1) * dispW + padX, padY, dispW, dispH);
+
+                            //president veto/super
+                            if (bodyPass[0] === true && bodyPass[1] === true && bodyPass[3] === false) {
+                                if (superThreshIndex[0] === true && superThreshIndex[1] === true) {
+                                    text('VETO OVERRIDEN BY SUPER MAJORITY IN ALL HOUSES: NO PRESIDENTIAL VOTE', (i - 1) * dispW + padX, dHeight / 4, dispW, dispH);
+                                } else {
+                                    text('PRESIDENT VETOS: BILL IS NOT APPROVED ', (i - 1) * dispW + padX, (i - 1) * dispW + padX, dHeight / 4, dispW, dispH);
+                                }
+                            } else if (bodyPass[0] == false || bodyPass[1] == false) {
+                                // dispY = dispY + (dHeight / 5);
+                                text('BILL IS NOT APPROVED BY ALL HOUSES: NO PRESIDENTIAL VOTE', (i - 1) * dispW + padX, dHeight / 3, dispW, dispH);
+                            } else if (bodyPass[i] == true &&
+                                superThreshIndex[0] == false ||
+                                superThreshIndex[1] == false) {
+                                text('\nBILL IS APPROVED', (i - 1) * dispW + padX, dHeight / 4, dispW, dispH);
+                            } else if (bodyPass[i] == false) {
+                                text('\nBILL IS NOT APPROVED ', (i - 1) * dispW + padX, dHeight / 4, dispW, dispH);
                             }
                         } else {
-                            text('\n\nDOES NOT  VOTE', (i - 1) * dispW, padY, dispW, dispH);
+                            textSize(16);
+                            text('\n\nDOES NOT VOTE', (i - 1) * dispW + padX, padY, dispW, dispH);
                         }
-
                     } else if (currentBodyLabel == 'VICE PRESIDENT') {
-
-                        textSize(26);
-                        text(currentBodyLabel, (i) * dispW, dHeight / 2, dispW, dispH);
-                        textSize(20);
-
-
+                        textSize(23);
+                        text(currentBodyLabel, i * dispW + padX, dHeight / 2, dispW, dispH);
                         if (stopVoteArr[i] == false && vpVote == true) {
-                            text("\n\nTALLY: " + "\nYES VOTES= " + votingBodyCounts[i][0] + "NO VOTES= " + votingBodyCounts[i][1] + "\n ", (i) * dispW, dHeight / 2, dispW, dispH);
-                            if (bodyPass[i] == false) {
-                                text('\nBILL FAILS ' + currentBodyLabel, (i) * dispW, dHeight * (3 / 4), dispW, dispH);
-                            } else if (bodyPass[i] == true && superThreshIndex[i] == false) {
-                                text('\nBILL PASSES ' + currentBodyLabel, (i) * dispW, dHeight * (3 / 4), dispW, dispH);
+                            textSize(20);
+                            text("\n\nVOTES \n", i * dispW + padX, dHeight / 2, dispW, dispH);
+                            textSize(16);
+                            text("\n\n\n\nYES: " + votingBodyCounts[i][0] + "\nNO: " + votingBodyCounts[i][1] + "\n ", i * dispW + padX, dHeight / 2, dispW, dispH);
+
+                            if (bodyPass[0] == false || bodyPass[1] == false) {
+                                text('\n\n\nBILL IS NOT APPROVED BY ALL HOUSES: NO VP VOTE', i * dispW + padX, dHeight * (3 / 4), dispW, dispH);
+                            } else if (bodyPass[0] == true && bodyPass[1] == true && vpVote == true) {
+                                text('\n\n\nTIE BREAKER VOTE INITIATED', i * dispW + padX, dHeight * (3 / 4), dispW, dispH);
+                                if (bodyPass[i] == false) {
+                                    text('\nBILL IS NOT APPROVED', (i) * dispW + padX, dHeight * (3 / 4), dispW, dispH);
+                                } else if (bodyPass[i] == true) {
+                                    text('\nBILL IS APPROVED', (i) * dispW + padX, dHeight * (3 / 4), dispW, dispH);
+                                }
                             }
+
                         } else {
-                            text('\n\nDOES NOT  VOTE', i * dispW, dHeight / 2, dispW, dispH);
+                            textSize(16);
+                            text('\n\nDOES NOT VOTE', i * dispW + padX, dHeight / 2, dispW, dispH);
                         }
 
                     } else {
-
-                        textSize(26);
-                        text(currentBodyLabel, i * dispW, padY, dispW, dispH);
-                        textSize(20);
-
+                        textSize(23);
+                        text(currentBodyLabel, i * dispW + padX, padY, dispW, dispH);
                         if (stopVoteArr[i] == false) {
-                            text("\n\nTALLY: " + "\nYES VOTES= " + votingBodyCounts[i][0] + "\nNO VOTES= " + votingBodyCounts[i][1] + "\n", i * dispW, padY, dispW, dispH);
+                            textSize(20);
+                            text("\n\nVOTES \n", i * dispW + padX, padY, dispW, dispH);
+                            textSize(16);
+                            text("\n\n\n\nYES: " + votingBodyCounts[i][0] + "\nNO: " + votingBodyCounts[i][1] + "\n ", i * dispW + padX, padY, dispW, dispH);
+
                             if (bodyPass[i] == false) {
-                                text('\nBILL FAILS ' + currentBodyLabel, i * dispW, dHeight / 4, dispW, dispH);
+                                text('\nBILL IS NOT APPROVED', i * dispW + padX, dHeight / 4, dispW, dispH);
                             } else if (bodyPass[i] == true && superThreshIndex[i] == false) {
-                                text('\nBILL PASSES ' + currentBodyLabel, i * dispW, dHeight / 4, dispW, dispH);
+                                text('\nBILL IS APPROVED', i * dispW + padX, dHeight / 4, dispW, dispH);
                             }
                         } else {
-                            text('\n\nDOES NOT VOTE', i * dispW, padY, dispW, dispH);
+                            textSize(16);
+                            text('\n\nDOES NOT VOTE', i * dispW + padX, padY, dispW, dispH);
                         }
                     }
 
                     // superthresh
                     if (bodyPass[i] == true && superThreshIndex[i] == true && currentBodyLabel != 'PRESIDENT' && currentBodyLabel != 'VICE PRESIDENT') {
-                        text('BILL PASSES ' + currentBodyLabel + ' WITH SUPER MAJORITY' + "\n ", i * dispW, dHeight / 3, dispW, dispH);
-                        // dispY += dispH;
-                    }
-
-                    // vice president
-                    if (currentBodyLabel == 'VICE PRESIDENT') {
-                        if (bodyPass[0] == false || bodyPass[1] == false) {
-                            text('\n\n\nBILL DID NOT PASS ALL HOUSES: NO V VOTE', (i) * dispW, dHeight * (3 / 4), dispW, dispH);
-                        }
-
-                        if (bodyPass[0] == true && bodyPass[1] == true && vpVote == true) {
-                            text('\n\n\nTIE BREAKER VOTE INITIATED', (i) * dispW, dHeight * (3 / 4), dispW, dispH);
-                        }
-                    }
-
-                    //president
-                    else if (currentBodyLabel == 'PRESIDENT') {
-                        print("I AM IN PRESIDENT LOGIC");
-                        if (bodyPass[0] === true && bodyPass[1] === true && bodyPass[3] === false) {
-                            if (superThreshIndex[0] === true && superThreshIndex[1] === true) {
-                                text('VETO OVERRIDEN BY SUPER MAJORITY IN ALL HOUSES: NO PRESIDENTIAL VOTE', (i - 1) * dispW, dHeight / 3, dispW, dispH);
-                            } else {
-                                text('PRESIDENT VETOS: BILL DOES NOT PASS ', (i - 1) * dispW, dHeight / 3, dispW, dispH);
-                            }
-                        } else if (bodyPass[0] == false || bodyPass[1] == false) {
-                            dispY = dispY + (dHeight / 5);
-                            text('BILL DID NOT PASS ALL HOUSES: NO PRESIDENTIAL VOTE', (i - 1) * dispW, dHeight / 3, dispW, dispH);
-                        }
+                        textSize(16);
+                        text('BILL IS APPROVED ' + currentBodyLabel + ' WITH SUPER MAJORITY' + "\n ", i * dispW + padX, dHeight / 3, dispW, dispH);
                     }
                 }
 
-
                 //regular pass
-                if (bodyPass[0] === true && bodyPass[1] === true && bodyPass[2] === true) {
-                    text('DECISION:\nBILL PASSES ', padX, dHeight * (3 / 4) + padX, dWidth, dispH);
-                } else if (bodyPass[0] === true && bodyPass[1] === true && bodyPass[2] === false) {
+                if (bodyPass[0] === true && bodyPass[1] === true && bodyPass[3] === true) {
+                    decisionText = "DECISION: BILL BECOMES A LAW";
+
+                } else if (bodyPass[0] === true && bodyPass[1] === true && bodyPass[3] === false) {
                     if (superThreshIndex[0] === true && superThreshIndex[1] === true) {
-                        text('DECISION:\nBILL PASSES BY SUPERMAJORITY ', padX, dHeight * (3 / 4) + padX, dWidth, dispH);
+                        decisionText = "DECISION: BILL BILL BECOMES A LAW BY SUPERMAJORITY";
+
                     } else {
-                        text('DECISION:\nBILL DOES NOT PASS DUE TO PRESIDENTIAL VETO ', padX, dHeight * (3 / 4) + padX, dWidth, dispH);
+                        decisionText = "DECISION: BILL DOES NOT BECOME A LAW DUE TO PRESIDENTIAL VETO";
+
                         print(superThreshIndex[0] + ' ' + superThreshIndex[1]);
                     }
                 } else if (bodyPass[0] == false || bodyPass[1] == false) {
                     dispY = dispY + (dHeight / 5);
-                    text('BILL DID NOT PASS ALL HOUSES: BILL DOES NOT PASS', padX, dHeight * (3 / 4) + padX, dWidth, dispH);
+
+                    decisionText = "DECISION: BILL DOES NOT BECOME A LAW";
+
                 }
-                // dispY = dispY + dispH;
+                changeText(decisionText);
             };
 
-        }, 3000);
+        }, 2000);
 
     }
 
 }
+
+function changeText(text) {
+    document.getElementById("result").innerHTML = text;
+}
+
 
 function nextBody() {
     bodyCount++;
@@ -856,12 +908,18 @@ function nextBody() {
 function userInput() {
 
     bodyCount = numBodies;
-    buttonReC = createButton('Reset');
-    buttonReC.position((offSet * (numBodies - 1)) - buttonReC.width - 20, windowHeight - 40);
+    buttonReC = createButton('RESET');
+
+    buttonReC.id('button-re');
+
+    buttonReC.position(windowWidth - buttonReC.width - 20, windowHeight - 45);
     buttonReC.mousePressed(userRecount);
 
-    buttonRC = createButton('Reconfigure Congress');
-    buttonRC.position((offSet * (numBodies - 1)) - buttonRC.width - buttonReC.width - 20, windowHeight - 40);
+    buttonRC = createButton('RECONFIGURE CONGRESS');
+
+    buttonRC.id('button-re');
+
+    buttonRC.position(windowWidth - buttonRC.width - buttonReC.width - 20, windowHeight - 45);
     buttonRC.mousePressed(userVars);
 
 }
@@ -874,191 +932,258 @@ function userRecount() {
 
 
 function userVars() {
+    //AB added this here for less confusion for the user
+    buttonRC.remove();
+    userEdits = true;
     background(0);
+    changeText(" ");
 
-    //Slider Example - update with GUI
-    //https://p5js.org/examples/dom-slider.html
-    // create sliders
-    //  rSlider = createSlider(0, 255, 100);
-    //  rSlider.position(inputPaddingX , 20);
-    //  gSlider = createSlider(0, 255, 0);
-    //  gSlider.position(inputPaddingX , 50);
-    //  bSlider = createSlider(0, 255, 255);
-    //  bSlider.position(inputPaddingX , 80);
-    //}
+    //AB's custom fucntions to create user configuration sliders.
+    sliders();
+    textBox();
+    textLabel();
+
+    // var inputPaddingY = 50;
+    // var inputPaddingX = 20;
+    // var i = 1;
+    // var textSizeV = 20;
     //
-    //function draw() {
-    //  const r = rSlider.value();
-    //  const g = gSlider.value();
-    //  const b = bSlider.value();
-    //  background(r, g, b);
-    //  text('red', rSlider.x * 2 + rSlider.width, 35);
-    //  text('green', gSlider.x * 2 + gSlider.width, 65);
-    //  text('blue', bSlider.x * 2 + bSlider.width, 95);
-    //}
-
-    var inputPaddingY = 50;
-    var inputPaddingX = 20;
-    var i = 1;
-    var textSizeV = 20;
-
-    textSize(textSizeV);
-    textAlign(LEFT, TOP);
-
-    //Number voting members in each voting body
-    userNumHouse = createInput(numHouse);
-    userNumHouseSlider = createSlider(0, 255, 100);
-    userNumHouseSlider.position(inputPaddingX, inputPaddingY * i);
+    // textSize(textSizeV);
+    // textAlign(LEFT, TOP);
+    //
+    // //Number voting members in each voting body
+    // userNumHouse = createInput(numHouse);
     // userNumHouse.position(inputPaddingX, inputPaddingY * i);
-    //userNumHouse.size(60);
-    text('Number total voting members in the House', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4) + ((windowHeight - dHeight)/2));
-    i++;
-
-    userNumSenate = createInput(numSenate);
-    userNumSenate.position(inputPaddingX, inputPaddingY * i);
-    text('Number total voting members in the Senate', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    userNumPres = createInput(numPres);
-    userNumPres.position(inputPaddingX, inputPaddingY * i);
-    text('Number of Presidents', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    //Demographics of House as decimal percentages 1 = 100%
-    userPerDemHouse = createInput(perDemHouse);
-    userPerDemHouse.position(inputPaddingX, inputPaddingY * i);
-    text('Percentage of Democrats in the House', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    userPerRepHouse = createInput(perRepHouse);
-    userPerRepHouse.position(inputPaddingX, inputPaddingY * i);
-    text('Percentage of Republicans in the House', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    userPerIndHouse = createInput(perIndHouse);
-    userPerIndHouse.position(inputPaddingX, inputPaddingY * i);
-    text('Percentage of Third Parties in the House', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    //Demographics of Senate as decimal percentages 1 = 100%
-    userPerDemSenate = createInput(perDemSenate);
-    userPerDemSenate.position(inputPaddingX, inputPaddingY * i);
-    text('Percentage of Democrats in the Senate', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    userPerRepSenate = createInput(perRepSenate);
-    userPerRepSenate.position(inputPaddingX, inputPaddingY * i);
-    text('Percentage of Republicans in the Senate', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    userPerIndSenate = createInput(perIndSenate);
-    userPerIndSenate.position(inputPaddingX, inputPaddingY * i);
-    text('Percentage of Independents in the Senate', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    //Demographics of President as decimal percentages 1 = 100%
-    userPerDemPres = createInput(perDemPres);
-    userPerDemPres.position(inputPaddingX, inputPaddingY * i);
-    text('Precentage of Democratic Presidents', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    userPerRepPres = createInput(perRepPres);
-    userPerRepPres.position(inputPaddingX, inputPaddingY * i);
-    text('Precentage of Republican Presidents', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    userPerIndPres = createInput(perIndPres);
-    userPerIndPres.position(inputPaddingX, inputPaddingY * i);
-    text('Precentage of Independent Presidents', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    //Historical Likelihood of party affiliation & likelihood of 'yay' vote for Democratic representative
-    userDemYaythresh = createInput(demYaythresh);
-    userDemYaythresh.position(inputPaddingX, inputPaddingY * i);
-    text('Historical likelyhood of a Democratic Yay vote on any given bill', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    //Historical Likelihood of party affiliation & likelihood of 'yay' vote for Republican representative
-    userRepYaythresh = createInput(repYaythresh);
-    userRepYaythresh.position(inputPaddingX, inputPaddingY * i);
-    text('Historical likelyhood of a Republican Yay vote on any given bill', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    //Historical Likelihood of party affiliation & likelihood of 'yay' vote for Independent representative
-    userIndYaythresh = createInput(indYaythresh);
-    userIndYaythresh.position(inputPaddingX, inputPaddingY * i);
-    text('Historical likelyhood of an Independent Yay vote on any given bill', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    //Super Majority Cutoff for override of presidential veto
-    userSuperThresh = createInput(superThresh);
-    userSuperThresh.position(inputPaddingX, inputPaddingY * i);
-    text('Precentage of yay votes to be considered a Supermajority', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    ////How Many Voting Bodies (house, senate, president = 3) *for V2 - see TODO at top
-    //userNumBodies =  createInput(numBodies);
-    //userNumBodies.position(inputPaddingX , inputPaddingY * i);
-    //text('How many voting bodies - including President', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV/4));
-    //i++;
-
-    //Your Stress Value
-    userStressSensorval = createInput(stressSensorval);
-    userStressSensorval.position(inputPaddingX, inputPaddingY * i);
-    text('How stressed are you on a scale of 1-10?  1 = bliss state. 5 = healthy amount of stress. 10 = very stressed ', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
-
-    //Planet's Stress Value
-    userStressPlanet = createInput(stressPlanet);
-    userStressPlanet.position(inputPaddingX, inputPaddingY * i);
-    text('How stressed is the planet on a scale of 1-10?  1 = perfect harmony. 5 = healthy amount of dynamic stress. 10 = very stressed ', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
-    i++;
+    // userNumHouse.size(60);
+    //
+    // text('Number total voting members in the House', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4) + ((windowHeight - dHeight) / 2));
+    // i++;
+    //
+    // userNumSenate = createInput(numSenate);
+    // userNumSenate.position(inputPaddingX, inputPaddingY * i);
+    // text('Number total voting members in the Senate', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // userNumPres = createInput(numPres);
+    // userNumPres.position(inputPaddingX, inputPaddingY * i);
+    // text('Number of Presidents', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // //Demographics of House as decimal percentages 1 = 100%
+    // userPerDemHouse = createInput(perDemHouse);
+    // userPerDemHouse.position(inputPaddingX, inputPaddingY * i);
+    // text('Percentage of Democrats in the House', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // userPerRepHouse = createInput(perRepHouse);
+    // userPerRepHouse.position(inputPaddingX, inputPaddingY * i);
+    // text('Percentage of Republicans in the House', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // userPerIndHouse = createInput(perIndHouse);
+    // userPerIndHouse.position(inputPaddingX, inputPaddingY * i);
+    // text('Percentage of Third Parties in the House', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // //Demographics of Senate as decimal percentages 1 = 100%
+    // userPerDemSenate = createInput(perDemSenate);
+    // userPerDemSenate.position(inputPaddingX, inputPaddingY * i);
+    // text('Percentage of Democrats in the Senate', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // userPerRepSenate = createInput(perRepSenate);
+    // userPerRepSenate.position(inputPaddingX, inputPaddingY * i);
+    // text('Percentage of Republicans in the Senate', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // userPerIndSenate = createInput(perIndSenate);
+    // userPerIndSenate.position(inputPaddingX, inputPaddingY * i);
+    // text('Percentage of Independents in the Senate', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // //Demographics of President as decimal percentages 1 = 100%
+    // userPerDemPres = createInput(perDemPres);
+    // userPerDemPres.position(inputPaddingX, inputPaddingY * i);
+    // text('Precentage of Democratic Presidents', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // userPerRepPres = createInput(perRepPres);
+    // userPerRepPres.position(inputPaddingX, inputPaddingY * i);
+    // text('Precentage of Republican Presidents', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // userPerIndPres = createInput(perIndPres);
+    // userPerIndPres.position(inputPaddingX, inputPaddingY * i);
+    // text('Precentage of Independent Presidents', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // //Historical Likelihood of party affiliation & likelihood of 'yay' vote for Democratic representative
+    // userDemYaythresh = createInput(demYaythresh);
+    // userDemYaythresh.position(inputPaddingX, inputPaddingY * i);
+    // text('Historical likelyhood of a Democratic Yay vote on any given bill', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // //Historical Likelihood of party affiliation & likelihood of 'yay' vote for Republican representative
+    // userRepYaythresh = createInput(repYaythresh);
+    // userRepYaythresh.position(inputPaddingX, inputPaddingY * i);
+    // text('Historical likelyhood of a Republican Yay vote on any given bill', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // //Historical Likelihood of party affiliation & likelihood of 'yay' vote for Independent representative
+    // userIndYaythresh = createInput(indYaythresh);
+    // userIndYaythresh.position(inputPaddingX, inputPaddingY * i);
+    // text('Historical likelyhood of an Independent Yay vote on any given bill', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // //Super Majority Cutoff for override of presidential veto
+    // userSuperThresh = createInput(superThresh);
+    // userSuperThresh.position(inputPaddingX, inputPaddingY * i);
+    // text('Precentage of yay votes to be considered a Supermajority', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // ////How Many Voting Bodies (house, senate, president = 3) *for V2 - see TODO at top
+    // //userNumBodies =  createInput(numBodies);
+    // //userNumBodies.position(inputPaddingX , inputPaddingY * i);
+    // //text('How many voting bodies - including President', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV/4));
+    // //i++;
+    //
+    // //Your Stress Value
+    // userStressSensorval = createInput(stressSensorval);
+    // userStressSensorval.position(inputPaddingX, inputPaddingY * i);
+    // text('How stressed are you on a scale of 1-10?  1 = bliss state. 5 = healthy amount of stress. 10 = very stressed ', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
+    //
+    // //Planet's Stress Value
+    // userStressPlanet = createInput(stressPlanet);
+    // userStressPlanet.position(inputPaddingX, inputPaddingY * i);
+    // text('How stressed is the planet on a scale of 1-10?  1 = perfect harmony. 5 = healthy amount of dynamic stress. 10 = very stressed ', inputPaddingX + userNumHouse.width + 10, inputPaddingY * i - (textSizeV / 4));
+    // i++;
 
     buttonIV = createButton('Recalculate');
-    buttonIV.position((offSet * (numBodies - 1)) - buttonIV.width - buttonReC.width - buttonRC.width - 20, windowHeight - 40);
+    buttonIV.id('button-re');
+
+    buttonIV.position(windowWidth - buttonIV.width - buttonReC.width - buttonRC.width - 20, windowHeight - 45);
     buttonIV.mousePressed(inputVar);
+}
+
+function checkValue(inputText, bodyTextBox, bodyCurrentValue) {
+    this.inputText = inputText;
+    this.bodyTextBox = bodyTextBox;
+    this.bodyCurrentValue = bodyCurrentValue;
+
+    if (this.inputText != this.bodyCurrentValue) {
+        updateValue(this.bodyTextBox, this.inputText);
+    }
+    this.bodyCurrentValue = this.inputText;
+    return this.bodyCurrentValue;
+}
+
+function updateValue(textbox, value) {
+    this.x = textbox.x;
+    this.y = textbox.y;
+    this.width = textbox.width;
+    this.textbox = textbox;
+    this.value = value;
+
+    this.textbox = createInput(this.value);
+    this.textbox.position(this.x, this.y);
+    this.textbox.class('input-copies');
+}
+
+function textBox() {
+
+    userNumHouse = createInput(userNumHouseText);
+    userNumHouse.position(userPaddingX + userNumHouseSlider.x + userNumHouseSlider.width, userNumHouseSlider.y);
+
+    userNumSenate = createInput(userNumSenateText);
+    userNumSenate.position(userPaddingX + userNumSenateSlider.x + userNumSenateSlider.width, userNumSenateSlider.y);
+
+    userNumPres = createInput(userNumPresText);
+    userNumPres.position(userPaddingX + userNumPresSlider.x + userNumPresSlider.width, userNumPresSlider.y);
 
 }
+
+function textLabel() {
+    textSize(15);
+    textAlign(LEFT);
+    fill(255);
+
+    houseLabel = createElement('p', 'Number total voting members in the House');
+    houseLabel.class('group-labels');
+    houseLabel.position(userNumHouse.x + userNumHouse.width + userPaddingX, userNumHouseSlider.y - 15);
+
+    senateLabel = createElement('p', 'Number total voting members in the Senate');
+    senateLabel.class('group-labels');
+    senateLabel.position(userNumSenate.x + userNumSenate.width + userPaddingX, userNumSenateSlider.y - 15);
+
+    presLabel = createElement('p', 'Number total Presidents');
+    presLabel.class('group-labels');
+    presLabel.position(userNumPres.x + userNumPres.width + userPaddingX, userNumPresSlider.y - 15);
+}
+
+
+function sliders() {
+    var i = 0;
+    var initialY = 100;
+
+    userNumHouseSlider = createSlider(0, 500, numHouse);
+
+    userNumHouseSlider.position(userInputX, initialY + (userInputY * i));
+    console.log("house y: " + userNumHouseSlider.y);
+    i++;
+
+    userNumSenateSlider = createSlider(0, 500, numSenate);
+    userNumSenateSlider.position(userInputX, initialY + (userInputY * i));
+    console.log("Senate y: " + userNumSenateSlider.y);
+    i++;
+
+    userNumPresSlider = createSlider(1, 1, numPres);
+    userNumPresSlider.position(userInputX, initialY + (userInputY * i));
+    console.log("Pres y: " + userNumPresSlider.y);
+    i++;
+
+}
+
 
 //User Input Values for Congressional Reconfiguration
 function inputVar() {
 
     //Number voting members
-    numHouse = userNumHouse.value();
-    numSenate = userNumSenate.value();
-    numPres = userNumPres.value();
+    numHouse = userNumHouseSlider.value();
+    numSenate = userNumSenateSlider.value();
+    numPres = userNumPresSlider.value();
 
-    //Demographics of House as decimal percentages 1 = 100%
-    perDemHouse = userPerDemHouse.value();
-    perRepHouse = userPerRepHouse.value();
-    perIndHouse = userPerIndHouse.value();
-
-    //Demographics of Senate as decimal percentages 1 = 100%
-    perDemSenate = userPerDemSenate.value();
-    perRepSenate = userPerRepSenate.value();
-    perIndSenate = userPerIndSenate.value();
-
-    //Demographics of President as decimal percentages 1 = 100%
-    perDemPres = userPerDemPres.value();
-    perRepPres = userPerRepPres.value();
-    perIndPres = userPerIndPres.value();
-
-    //Historical Likelihood of party affiliation & likelihood of 'yay' vote
-    repYaythresh = userRepYaythresh.value();
-    demYaythresh = userDemYaythresh.value();
-    indYaythresh = userIndYaythresh.value();
-
-    //Super Majority Cutoff for override of presidential veto
-    superThresh = userSuperThresh.value();
-
-    //How Many Voting Bodies (house, senate, president = 3) *for V2 - see TODO at top
-    //numBodies = userNumBodies.value();
-
-    //Your Stress Value
-    stressSensorval = userStressSensorval.value();
-
-    //Planets Stress Value
-    stressPlanet = userStressPlanet.value();
+    // //Demographics of House as decimal percentages 1 = 100%
+    // perDemHouse = userPerDemHouse.value();
+    // perRepHouse = userPerRepHouse.value();
+    // perIndHouse = userPerIndHouse.value();
+    //
+    // //Demographics of Senate as decimal percentages 1 = 100%
+    // perDemSenate = userPerDemSenate.value();
+    // perRepSenate = userPerRepSenate.value();
+    // perIndSenate = userPerIndSenate.value();
+    //
+    // //Demographics of President as decimal percentages 1 = 100%
+    // perDemPres = userPerDemPres.value();
+    // perRepPres = userPerRepPres.value();
+    // perIndPres = userPerIndPres.value();
+    //
+    // //Historical Likelihood of party affiliation & likelihood of 'yay' vote
+    // repYaythresh = userRepYaythresh.value();
+    // demYaythresh = userDemYaythresh.value();
+    // indYaythresh = userIndYaythresh.value();
+    //
+    // //Super Majority Cutoff for override of presidential veto
+    // superThresh = userSuperThresh.value();
+    //
+    // //How Many Voting Bodies (house, senate, president = 3) *for V2 - see TODO at top
+    // //numBodies = userNumBodies.value();
+    //
+    // //Your Stress Value
+    // stressSensorval = userStressSensorval.value();
+    //
+    // //Planets Stress Value
+    // stressPlanet = userStressPlanet.value();
 
     bodyCount = 0;
     resetCount();
@@ -1072,27 +1197,50 @@ function inputVar() {
 
 function removeField() {
     buttonReC.remove();
-    buttonRC.remove();
+    // buttonRC.remove();
     buttonIV.remove();
+
+
+    var inputCopies = document.getElementsByClassName('input-copies');
+    inpLength = inputCopies.length;
+    while (inpLength--) {
+        inputCopies[inpLength].remove();
+    };
+
+    var textBodyLabel = document.getElementsByClassName('group-labels');
+    tLength = textBodyLabel.length;
+    while (tLength--) {
+        textBodyLabel[tLength].remove();
+    };
+
 
     userNumHouse.remove();
     userNumSenate.remove();
     userNumPres.remove();
-    userPerDemHouse.remove();
-    userPerRepHouse.remove();
-    userPerIndHouse.remove();
-    userPerDemSenate.remove();
-    userPerRepSenate.remove();
-    userPerIndSenate.remove();
-    userPerDemPres.remove();
-    userPerRepPres.remove();
-    userPerIndPres.remove();
-    userDemYaythresh.remove();
-    userRepYaythresh.remove();
-    userIndYaythresh.remove();
-    userSuperThresh.remove();
-    userStressSensorval.remove();
-    userStressPlanet.remove();
+
+    userNumHouseSlider.remove();
+    userNumPresSlider.remove();
+    userNumSenateSlider.remove();
+
+
+
+
+    // userPerDemHouse.remove();
+    // userPerRepHouse.remove();
+    // userPerIndHouse.remove();
+    // userPerDemSenate.remove();
+    // userPerRepSenate.remove();
+    // userPerIndSenate.remove();
+    // userPerDemPres.remove();
+    // userPerRepPres.remove();
+    // userPerIndPres.remove();
+    // userDemYaythresh.remove();
+    // userRepYaythresh.remove();
+    // userIndYaythresh.remove();
+    // userSuperThresh.remove();
+    // userStressSensorval.remove();
+    // userStressPlanet.remove();
     //userNumBodies.remove();
+    userEdits = false;
 
 }
